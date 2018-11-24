@@ -1,0 +1,276 @@
+<%@page language="java" contentType="text/html;charset=UTF-8"  session="true" errorPage="Error.jsp" %>
+<%@page pageEncoding="UTF-8"%>
+
+<%@page import="java.sql.*"%>
+<%@page import="java.text.*"%>
+<%@include file="mail.jsp" %>
+
+<%
+    request.setCharacterEncoding("UTF-8");    
+%>
+
+
+
+<head>
+     <link rel="stylesheet" href="mtk.css" type="text/css">
+        <link rel="stylesheet" href="chosen.css">
+            
+             <style type="text/css">
+            body {
+            }
+        </style>
+        <link rel="stylesheet" type="text/css" href="tautocomplete.css" />
+        <script src="jquery.js" type="text/javascript"></script>
+        <script src="tautocomplete.js" type="text/javascript"></script>
+  <style type="text/css" media="all">
+    /* fix rtl for demo */
+    .chosen-rtl .chosen-drop { left: -9000px; }
+  </style>
+
+                <script>
+if (windowname. closed == true) 
+{ 
+window.close(); 
+session.invalidate(); 
+} 
+
+            function check()
+            {
+                
+                 
+              
+          
+               if(document.a.onem.value==0)
+            {
+                alert("Lütfen Onem duzeyi giriniz !");
+            return false;
+                }      
+                
+                   if(document.a.tel.value==0)
+            {
+                alert("Lütfen Tel giriniz !");
+            return false;
+                }      
+       
+            if(document.a.sorun.value==0)
+            {
+                alert("Lütfen bir sorun giriniz !");
+            return false;
+                }
+                
+        
+                
+                
+         if(document.a.sikayetci.value==0)
+            {
+                alert("Lütfen Ilgili birini giriniz !");
+            return false;
+                }        
+               
+                }
+
+</script>
+
+    
+    
+</head>
+<body>
+    <%
+    if ((session.getAttribute("userid") == null) || (session.getAttribute("userid") == "")) {    
+   
+   
+    response.sendRedirect("login.jsp");
+}
+    
+    if(request.getParameter("btn_submit")==null)
+    {
+        
+        String user=session.getAttribute("userid").toString();
+        String param = request.getParameter("param");
+        
+
+
+        %>
+       <h3 align="center"><%=user%> ARIZA KAYIT</h1>
+
+    <%--
+    This example uses JSTL, uncomment the taglib directive above.
+    To test, display the page like this: index.jsp?sayHello= ue&name=Murphy
+    --%>
+    <%--
+    <c:if test="${param.sayHello}">
+        <!-- Let's welcome the user ${param.name} -->
+        Hello ${param.name}!
+    </c:if>
+    --%>
+         <table  border="1" align="center">
+
+      <form name="uploadForm" action="dee.jsp" enctype="multipart/form-data" method="post">
+                <tr>
+                    <th>Arıza detayı ilgili döküman(Arıza Formunu Kaydetmeden önce dosya yükleyin )</th>
+                    <%
+       
+       
+       HttpSession onemli=request.getSession();
+       
+       if(onemli.getValue("upload")!=null)
+       {
+           String fileName=onemli.getValue("upload").toString();
+           %>
+                    
+                    <TD><input name="filename" readonly type="text" value="<%=fileName%>"/></TD>
+            
+           
+       <%
+       }
+       else 
+       {
+       %>
+                    <TD><input  type="file" name="file"/><input TYPE=Button name='Upload' Value='Upload' onClick="uploadForm.Upload.value='Uploading...';document.uploadForm.action='dee.jsp';document.uploadForm.submit()"></TD>
+                </tr>
+                <% }%>
+                </table>
+        </form>
+                
+                <br>
+                <br>
+    <form  action="genelarizagiris.jsp" method=post name="a" onsubmit="return check()">
+                 <table  border="1" align="center">
+ 
+         
+               
+         
+           <tr>
+      <th>Önem Düzeyi </th>
+      <td><select  style="width: 360px" name="onem">
+            <option value="0">Seciniz</option>
+            <option value="acil">Acil</option>
+            <option value="normal">Normal</option>
+    </select>
+    </td>
+      </tr>
+      
+     
+      
+       <tr>
+
+    <th nowrap > Servise Gelindiğinde Görüşülecek Kişi: </th>
+ 
+<td><input size="50" name="sikayetci" type="text" placeholder="Yetkili giriniz.." ></td>
+
+  
+
+       </tr>
+    
+<!-- Text input-->
+<tr>
+
+    <th nowrap>Telefon: </th> 
+ 
+      <td> <input size="50"  name="tel" type="text" placeholder="Telefon Giriniz.." ></td>
+   
+ 
+</tr>
+    
+<tr>
+
+    <th>Arıza Açıklama: </th>
+                    
+    <td> <textarea rows="10" cols="50" placeholder="Sorun Giriniz.." name="sorun"></textarea></td>
+
+</tr>
+<!-- Button -->
+<tr align="center">
+
+      <td  colspan="2"> <button name="btn_submit">Kaydet</button></td>
+
+</tr>
+   </table>
+                    <p align="center"><a href="ArizaBildirim.jsp">Geri</a></p>
+
+</form>
+    
+     <%
+
+    }
+    
+    else
+    {
+        
+                    Class.forName("com.mysql.jdbc.Driver").newInstance();
+  Connection con = DriverManager.getConnection("jdbc:mysql://localhost/musteri?user=root&password=fides");
+  String user=session.getAttribute("userid").toString();
+  String file="";
+  String  sorgu2="select email from external_user where username=?";
+
+PreparedStatement sorgulama2=con.prepareStatement(sorgu2);
+
+sorgulama2.setString(1,user);
+
+ResultSet sonuc=sorgulama2.executeQuery();
+            
+sonuc.next();
+String email=sonuc.getString(1);
+       HttpSession onemli=request.getSession();
+
+      if(onemli.getValue("upload")!=null)
+       {
+            file=onemli.getValue("upload").toString();
+       }
+  
+          DateFormat df = new SimpleDateFormat("yyyy/dd/MM hh:mm:ss");
+          java.util.Date dd = new java.util.Date();
+       String y = String.valueOf(df.format(dd));  
+       String tip=request.getParameter("country");
+  
+
+//String sorgu = "insert into kayit (firma_adi,projeno,kayit_tarihi,kayit_saati,sikayetci,tel,sorun,sikayeti_alan,onay,antlasma,garanti,iscinsi,eleman,randevu,bolge) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+
+           String sorgu = "insert into kayit (firma_adi,projeno,kayit_tarihi,kayit_saati,sikayetci,tel,sorun,sikayeti_alan,onay,antlasma,garanti,iscinsi,eleman,randevu,bolge,filename,onem,sirket) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            PreparedStatement sorgulama = con.prepareStatement(sorgu);
+            sorgulama.setString(1, user);
+            sorgulama.setString(2, "ProjesizAriza");
+            sorgulama.setDate(3, new java.sql.Date(df.parse(y).getTime()));
+            sorgulama.setTime(4, new java.sql.Time(System.currentTimeMillis()));
+            sorgulama.setString(5, request.getParameter("sikayetci"));
+            sorgulama.setString(6, request.getParameter("tel"));
+            sorgulama.setString(7, request.getParameter("sorun"));
+            sorgulama.setString(8, user);   //sikayeti_alan
+            sorgulama.setInt(9, 0); //onay
+            sorgulama.setInt(10, 0);  //antlasma
+            sorgulama.setInt(11, 0);
+            sorgulama.setString(12, "");
+            sorgulama.setString(13, "");           
+            sorgulama.setTimestamp(14, null);
+            sorgulama.setString(15, "MOBESE");                     
+            sorgulama.setString(16, file);
+            sorgulama.setString(17, request.getParameter("onem"));
+            sorgulama.setString(18, "fides");
+            sorgulama.executeUpdate();
+             String maxQuery="select max(mid) from kayit";
+           Statement maxs=con.createStatement();
+           ResultSet rs4=maxs.executeQuery(maxQuery);
+           rs4.next();
+           
+           int mid=rs4.getInt(1);
+           
+           out.print("Arıza kayit id 'si :" +mid);
+              onemli=request.getSession(true);
+            onemli.removeValue("upload");
+             sendMail(user);
+%>            
+<script>
+                  alert("Arıza kaydınız oluşturulmuştur.");
+                window.location.href="ArizaBildirim.jsp"; 
+                </script>
+  <%
+            
+   
+   // con.close();
+    
+    }
+    
+    %>
+</body>
+</html>
